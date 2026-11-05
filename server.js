@@ -167,6 +167,10 @@ app.delete('/api/tasks/:id', authenticateUser, async (req, res) => {
 });
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`QuickTask running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`QuickTask running at http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;
