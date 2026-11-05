@@ -1,6 +1,5 @@
-
 // ==========================================
-// QUICKTASK - AUTHENTICATED DASHBOARD
+// QUICKTASK - AUTHENTICATED DARK DASHBOARD
 // ==========================================
 
 const taskInput = document.getElementById("taskInput");
@@ -17,10 +16,8 @@ let currentUser = null;
 // AUTHENTICATION
 // ==========================================
 
-// Get the current user's access token
 async function getAccessToken() {
-    const { data, error } =
-        await supabaseClient.auth.getSession();
+    const { data, error } = await supabaseClient.auth.getSession();
 
     if (error || !data.session) {
         window.location.replace("/login.html");
@@ -28,11 +25,9 @@ async function getAccessToken() {
     }
 
     currentUser = data.session.user;
-
     return data.session.access_token;
 }
 
-// Add authentication token to every backend request
 async function apiFetch(url, options = {}) {
     const token = await getAccessToken();
 
@@ -56,16 +51,54 @@ async function apiFetch(url, options = {}) {
     return response;
 }
 
-// Optional user email display
+// Display the signed-in user's name and avatar initials/photo.
 async function displayUser() {
     const userElement = document.getElementById("userEmail");
+    const fullName = currentUser?.user_metadata?.full_name;
+    const email = currentUser?.email || "My Account";
+    const displayName = fullName || email.split("@")[0];
+    const firstName = displayName.split(" ")[0];
 
-    if (userElement && currentUser) {
-        userElement.textContent = currentUser.email || "My Account";
+    const greeting = document.getElementById("greeting");
+    const sidebarName = document.getElementById("sidebarName");
+
+    if (greeting) {
+        const hour = new Date().getHours();
+        let welcome = "Good evening";
+
+        if (hour < 12) welcome = "Good morning";
+        else if (hour < 17) welcome = "Good afternoon";
+
+        greeting.textContent = `${welcome}, ${firstName}!`;
     }
+
+    if (sidebarName) sidebarName.textContent = displayName;
+    if (userElement) userElement.textContent = email;
+
+    const initials = displayName
+        .split(/\s+/)
+        .map(word => word[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+
+    const avatarUrl = currentUser?.user_metadata?.avatar_url;
+
+    ["sidebarAvatar", "topAvatar"].forEach(id => {
+        const avatar = document.getElementById(id);
+        if (!avatar) return;
+
+        avatar.textContent = initials || "U";
+
+        if (avatarUrl) {
+            avatar.style.backgroundImage = `url("${avatarUrl}")`;
+            avatar.style.backgroundSize = "cover";
+            avatar.style.backgroundPosition = "center";
+            avatar.textContent = "";
+        }
+    });
 }
 
-// Logout function
 async function logout() {
     const { error } = await supabaseClient.auth.signOut();
 
@@ -77,14 +110,9 @@ async function logout() {
     window.location.replace("/login.html");
 }
 
-// Connect an existing or future logout button
 const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) logoutBtn.addEventListener("click", logout);
 
-if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
-}
-
-// Redirect if the user signs out in another tab
 supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_OUT" || !session) {
         window.location.replace("/login.html");
@@ -112,14 +140,12 @@ if (todayDate) {
 
 function showToast(message, isError = false) {
     const toast = document.getElementById("toast");
-
     if (!toast) return;
 
     toast.textContent = message;
     toast.className = isError ? "toast show error" : "toast show";
 
     clearTimeout(toastTimer);
-
     toastTimer = setTimeout(() => {
         toast.className = "toast";
     }, 2500);
@@ -138,12 +164,13 @@ async function loadTasks() {
         }
 
         tasks = await response.json();
-
         updateDashboard();
 
     } catch (error) {
-        if (error.message.includes("log in") ||
-            error.message.includes("session expired")) {
+        if (
+            error.message.includes("log in") ||
+            error.message.includes("session expired")
+        ) {
             return;
         }
 
@@ -155,12 +182,76 @@ async function loadTasks() {
 }
 
 // ==========================================
+// WEEKLY PRODUCTIVITY CHART
+// Counts tasks created on each of the last 7 local calendar days.
+// ==========================================
+
+function renderWeeklyChart() {
+    const chart = document.getElementById("weeklyChart");
+    const weeklyTotal = document.getElementById("weeklyTotal");
+
+    if (!chart || !weeklyTotal) return;
+
+    const today = new Date();
+    const days = [];
+
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+
+        const dateKey = [
+            date.getFullYear(),
+            String(date.getMonth() + 1).padStart(2, "0"),
+            String(date.getDate()).padStart(2, "0")
+        ].join("-");
+
+        const count = tasks.filter(task => {
+            if (!task.created_at) return false;
+
+            const created = new Date(task.created_at);
+            if (Number.isNaN(created.getTime())) return false;
+
+            const createdKey = [
+                created.getFullYear(),
+                String(created.getMonth() + 1).padStart(2, "0"),
+                String(created.getDate()).padStart(2, "0")
+            ].join("-");
+
+            return createdKey === dateKey;
+        }).length;
+
+        days.push({
+            label: date.toLocaleDateString("en-US", { weekday: "short" }),
+            count
+        });
+    }
+
+    const total = days.reduce((sum, day) => sum + day.count, 0);
+    const maxCount = Math.max(...days.map(day => day.count), 1);
+
+    weeklyTotal.textContent = total;
+
+    chart.innerHTML = days.map(day => {
+        const height = Math.max(4, (day.count / maxCount) * 100);
+
+        return `
+            <div class="chart-day">
+                <div class="chart-bar-track" title="${day.count} task(s)">
+                    <div class="chart-bar" style="height: ${height}%"></div>
+                </div>
+                <span>${day.label}</span>
+            </div>
+        `;
+    }).join("");
+}
+
+// ==========================================
 // UPDATE DASHBOARD
 // ==========================================
 
 function updateDashboard() {
     const total = tasks.length;
-    const completed = tasks.filter(t => t.completed).length;
+    const completed = tasks.filter(task => task.completed).length;
     const pending = total - completed;
 
     document.getElementById("totalTasks").textContent = total;
@@ -168,6 +259,7 @@ function updateDashboard() {
     document.getElementById("completedTasks").textContent = completed;
     document.getElementById("taskCount").textContent = total;
 
+    renderWeeklyChart();
     displayTasks();
 }
 
@@ -181,8 +273,7 @@ function displayTasks() {
     const search = searchInput.value.toLowerCase().trim();
 
     const filteredTasks = tasks.filter(task => {
-        const matchesSearch =
-            task.title.toLowerCase().includes(search);
+        const matchesSearch = task.title.toLowerCase().includes(search);
 
         const matchesFilter =
             currentFilter === "all" ||
@@ -196,10 +287,6 @@ function displayTasks() {
         const empty = document.createElement("div");
         empty.className = "empty-state";
 
-        const icon = document.createElement("div");
-        icon.className = "empty-icon";
-        icon.textContent = "✦";
-
         const message = document.createElement("p");
 
         if (tasks.length === 0) {
@@ -211,7 +298,7 @@ function displayTasks() {
             message.textContent = "No tasks in this category.";
         }
 
-        empty.append(icon, message);
+        empty.appendChild(message);
         taskList.appendChild(empty);
         return;
     }
@@ -220,25 +307,20 @@ function displayTasks() {
         const card = document.createElement("div");
         card.className = "task-card";
 
-        if (task.completed) {
-            card.classList.add("completed");
-        }
+        if (task.completed) card.classList.add("completed");
 
         const info = document.createElement("div");
         info.className = "task-info";
 
         const checkBtn = document.createElement("button");
         checkBtn.className = "task-check";
+        checkBtn.type = "button";
         checkBtn.textContent = task.completed ? "✓" : "";
-
         checkBtn.setAttribute(
             "aria-label",
             task.completed ? "Mark as pending" : "Complete task"
         );
-
-        checkBtn.addEventListener("click", () => {
-            completeTask(task.id);
-        });
+        checkBtn.addEventListener("click", () => completeTask(task.id));
 
         const title = document.createElement("span");
         title.className = "task-title";
@@ -255,14 +337,11 @@ function displayTasks() {
 
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "delete-btn";
+        deleteBtn.type = "button";
         deleteBtn.textContent = "Delete";
-
-        deleteBtn.addEventListener("click", () => {
-            deleteTask(task.id);
-        });
+        deleteBtn.addEventListener("click", () => deleteTask(task.id));
 
         actions.appendChild(deleteBtn);
-
         card.append(info, actions);
         taskList.appendChild(card);
     });
@@ -287,9 +366,6 @@ async function addTask() {
     try {
         const response = await apiFetch("/api/tasks", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify({ title })
         });
 
@@ -299,9 +375,7 @@ async function addTask() {
         }
 
         taskInput.value = "";
-
         await loadTasks();
-
         showToast("Task added successfully! ✨");
 
     } catch (error) {
@@ -309,7 +383,7 @@ async function addTask() {
 
     } finally {
         addTaskBtn.disabled = false;
-        addTaskBtn.innerHTML = 'Add Task <span>＋</span>';
+        addTaskBtn.innerHTML = 'Add task <span>＋</span>';
     }
 }
 
@@ -329,7 +403,6 @@ async function completeTask(id) {
         }
 
         await loadTasks();
-
         showToast("Task status updated! ✓");
 
     } catch (error) {
@@ -342,9 +415,7 @@ async function completeTask(id) {
 // ==========================================
 
 async function deleteTask(id) {
-    if (!confirm("Are you sure you want to delete this task?")) {
-        return;
-    }
+    if (!confirm("Are you sure you want to delete this task?")) return;
 
     try {
         const response = await apiFetch(`/api/tasks/${id}`, {
@@ -357,7 +428,6 @@ async function deleteTask(id) {
         }
 
         await loadTasks();
-
         showToast("Task deleted successfully!");
 
     } catch (error) {
@@ -376,9 +446,7 @@ document.querySelectorAll(".filter-btn").forEach(button => {
         });
 
         button.classList.add("active");
-
         currentFilter = button.dataset.filter;
-
         displayTasks();
     });
 });
@@ -390,16 +458,13 @@ document.querySelectorAll(".filter-btn").forEach(button => {
 searchInput.addEventListener("input", displayTasks);
 
 // ==========================================
-// ADD BUTTON
+// ADD BUTTON + ENTER KEY
 // ==========================================
 
 addTaskBtn.addEventListener("click", addTask);
 
-// Enter key
 taskInput.addEventListener("keydown", event => {
-    if (event.key === "Enter") {
-        addTask();
-    }
+    if (event.key === "Enter") addTask();
 });
 
 // ==========================================
@@ -409,11 +474,8 @@ taskInput.addEventListener("keydown", event => {
 async function initializeDashboard() {
     try {
         await getAccessToken();
-
         await displayUser();
-
         await loadTasks();
-
     } catch (error) {
         console.error("Dashboard initialization:", error);
     }
