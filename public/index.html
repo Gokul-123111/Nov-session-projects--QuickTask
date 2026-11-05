@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickTask | Productivity Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">Q</div>
+                <span>QuickTask<span class="brand-dot">.</span></span>
+            </div>
+
+            <div class="sidebar-label">WORKSPACE</div>
+
+            <nav class="navigation">
+                <a href="#" class="nav-item active">
+                    <span>▦</span> Dashboard
+                </a>
+                <a href="#tasks" class="nav-item">
+                    <span>✓</span> My Tasks
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-message">
+                    <div class="message-icon">✦</div>
+                    <h4>Stay focused!</h4>
+                    <p>Small steps every day lead to big results.</p>
+                </div>
+
+                <div class="profile">
+                    <div class="avatar">G</div>
+                    <div>
+                        <h4>My Workspace</h4>
+                        <p>Personal account</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <span class="breadcrumb">WORKSPACE / DASHBOARD</span>
+                    <h2>Dashboard</h2>
+                </div>
+
+                <div class="top-right">
+                    <div class="date-label" id="todayDate"></div>
+                    <div class="top-avatar">G</div>
+                </div>
+            </header>
+
+            <!-- Welcome Section -->
+            <section class="welcome-banner">
+                <div class="welcome-content">
+                    <span class="welcome-tag">YOUR PRODUCTIVITY SPACE ✦</span>
+                    <h1>Make today<br> <span>count.</span></h1>
+                    <p>Plan smarter. Stay focused. Get things done.</p>
+                    <button class="welcome-btn"
+                        onclick="document.getElementById('taskInput').focus()">
+                        + Create a task
+                    </button>
+                </div>
+
+                <div class="welcome-art">
+                    <div class="orbit orbit-one"></div>
+                    <div class="orbit orbit-two"></div>
+                    <div class="art-circle">✦</div>
+                    <div class="floating-card">✓ &nbsp; Stay productive</div>
+                    <div class="floating-star">✧</div>
+                </div>
+            </section>
+
+            <!-- Statistics -->
+            <section class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span>Total Tasks</span>
+                        <span class="stat-icon purple">▦</span>
+                    </div>
+                    <h2 id="totalTasks">0</h2>
+                    <p>All your tasks in one place</p>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span>Pending</span>
+                        <span class="stat-icon orange">◷</span>
+                    </div>
+                    <h2 id="pendingTasks">0</h2>
+                    <p>Tasks waiting for you</p>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span>Completed</span>
+                        <span class="stat-icon green">✓</span>
+                    </div>
+                    <h2 id="completedTasks">0</h2>
+                    <p>Achievements unlocked</p>
+                </div>
+
+            </section>
+
+            <!-- Task Creation -->
+            <section class="create-section">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">LET'S GET STARTED</span>
+                        <h2>Create a new task</h2>
+                    </div>
+                    <span class="sparkle">✦</span>
+                </div>
+
+                <div class="task-form">
+                    <span class="input-icon">✎</span>
+                    <input
+                        type="text"
+                        id="taskInput"
+                        placeholder="What would you like to accomplish today?"
+                        maxlength="150"
+                    >
+                    <button id="addTaskBtn">Add Task <span>＋</span></button>
+                </div>
+                <p class="input-hint">Press Enter to quickly add your task.</p>
+            </section>
+
+            <!-- Task List -->
+            <section class="tasks-section" id="tasks">
+
+                <div class="tasks-header">
+                    <div>
+                        <span class="eyebrow">YOUR WORKSPACE</span>
+                        <h2>My Tasks <span class="task-count" id="taskCount">0</span></h2>
+                    </div>
+
+                    <div class="search-box">
+                        <span>⌕</span>
+                        <input type="text" id="searchInput"
+                            placeholder="Search tasks...">
+                    </div>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-btn active" data-filter="all">
+                        All Tasks
+                    </button>
+                    <button class="filter-btn" data-filter="pending">
+                        Pending
+                    </button>
+                    <button class="filter-btn" data-filter="completed">
+                        Completed
+                    </button>
+                </div>
+
+                <div id="taskList" class="task-list">
+                    <div class="loading">Loading your tasks...</div>
+                </div>
+
+            </section>
+
+            <footer>
+                <p>Made with <span>♥</span> using QuickTask</p>
+                <p>Stay focused. Keep growing.</p>
+                <button id="logoutBtn" class="logout-btn">
+                   Logout ↗
+                </button>
+            </footer>
+
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth-guard.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+

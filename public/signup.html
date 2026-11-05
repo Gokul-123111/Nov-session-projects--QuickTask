@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account | QuickTask</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+<main class="login-page">
+
+    <section class="welcome-panel">
+
+        <div class="brand">
+            <div class="brand-icon">Q</div>
+            <span>QuickTask</span>
+        </div>
+
+        <div class="welcome-content">
+
+            <span class="eyebrow">START YOUR PRODUCTIVITY JOURNEY</span>
+
+            <h1>Your goals.<br>
+                <span>Your progress.</span>
+            </h1>
+
+            <p>
+                Create your personal workspace and take control
+                of your everyday tasks.
+            </p>
+
+            <div class="feature-list">
+
+                <div class="feature">
+                    <span class="feature-icon">✓</span>
+                    <span>Your own private workspace</span>
+                </div>
+
+                <div class="feature">
+                    <span class="feature-icon">✓</span>
+                    <span>Organize your daily tasks</span>
+                </div>
+
+                <div class="feature">
+                    <span class="feature-icon">✓</span>
+                    <span>Track your achievements</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="welcome-footer">
+            © 2026 QuickTask. Stay focused. Get things done.
+        </div>
+
+    </section>
+
+    <section class="form-panel">
+
+        <div class="login-card">
+
+            <div class="mobile-brand">
+                <div class="brand-icon">Q</div>
+                <span>QuickTask</span>
+            </div>
+
+            <div class="form-heading">
+
+                <span class="welcome-label">GET STARTED</span>
+
+                <h2>Create your account</h2>
+
+                <p>Enter your details to create your personal workspace.</p>
+
+            </div>
+
+            <form id="signupForm">
+
+                <div class="form-group">
+                    <label for="fullName">Full name</label>
+
+                    <input
+                        type="text"
+                        id="fullName"
+                        placeholder="Enter your name"
+                        autocomplete="name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email address</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+
+                    <label for="password">Password</label>
+
+                    <div class="password-input">
+
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Minimum 8 characters"
+                            minlength="8"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="toggle-password"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+
+                    <label for="confirmPassword">Confirm password</label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        placeholder="Re-enter your password"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+                <button type="submit" class="login-button">
+                    Create Account <span>→</span>
+                </button>
+
+                <p id="message" class="message" aria-live="polite"></p>
+
+            </form>
+
+            <div class="divider">
+                <span>QUICKTASK</span>
+            </div>
+
+            <p class="bottom-text">
+                Already have an account?
+                <a href="login.html" id="signInLink">Sign in</a>
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="signup.js"></script>
+
+</body>
+</html>
